@@ -12,8 +12,11 @@ import path from 'path';
 
 const connectionString = process.env.DATABASE_URL;
 
+// Prints only true/false (never the password). Remove once everything works.
+console.log('DATABASE_URL set?', !!connectionString);
+
 if (!connectionString) {
-  console.error('❌ DATABASE_URL is not set. Add it in .env (local) or Vercel Environment Variables.');
+  console.error('❌ DATABASE_URL is not set. Add it in .env (local) or Vercel Environment Variables (Production), then redeploy.');
 }
 
 // Supabase requires SSL. Use the "Transaction pooler" connection string (port 6543)
@@ -29,6 +32,11 @@ export const pool = new Pool({
  * Usage: const { rows } = await query('SELECT * FROM users WHERE id = $1', [id]);
  */
 export async function query<T extends QueryResultRow = any>(text: string, params: any[] = []) {
+  // Fail with a clear message instead of silently trying localhost (ECONNREFUSED 127.0.0.1)
+  if (!connectionString) {
+    throw new Error('DATABASE_URL is not set on the server');
+  }
+
   try {
     return await pool.query<T>(text, params);
   } catch (error: any) {
@@ -41,6 +49,11 @@ export async function query<T extends QueryResultRow = any>(text: string, params
  * Checks that the database is reachable. Returns true if successful.
  */
 export async function testConnection(): Promise<boolean> {
+  if (!connectionString) {
+    console.error('❌ Supabase database connection test failed: DATABASE_URL is not set');
+    return false;
+  }
+
   try {
     await pool.query('SELECT 1');
     console.log('✅ Supabase database connection test passed.');
