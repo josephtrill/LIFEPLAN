@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LifePlan Savings Tracker — Prepare for your future and achieve your goals">
+  <title>LifePlan — Savings Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="12" fill="url(#g)" opacity=".15"/><rect x="8" y="8" width="32" height="32" rx="8" fill="url(#g)" opacity=".3"/><path d="M16 24L22 30L32 18" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g" x1="4" y1="4" x2="44" y2="44"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#00D2FF"/></linearGradient></defs></svg>
+        <span class="sidebar-title">LifePlan</span>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/dashboard.html" class="nav-link" id="nav-dashboard"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a href="/expenses.html" class="nav-link" id="nav-expenses"><span class="nav-icon">💰</span> Expenses</a></li>
+      <li><a href="/budget.html" class="nav-link" id="nav-budget"><span class="nav-icon">🎯</span> Budget</a></li>
+      <li><a href="/savings.html" class="nav-link active" id="nav-savings"><span class="nav-icon">🏦</span> Savings</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👤</span>
+        <span class="user-name" id="user-name">Loading...</span>
+      </div>
+      <button class="btn-link sidebar-logout" id="logout-btn">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Savings Tracker</h1>
+        <p class="page-subtitle">Track targets, fund your aspirations, and prepare for tomorrow.</p>
+      </div>
+      <button class="btn btn-primary" id="open-create-goal-btn">+ Create Goal</button>
+    </header>
+
+    <!-- Message Banners -->
+    <div id="savings-error" class="error-banner hidden"></div>
+    <div id="savings-success" class="success-banner hidden"></div>
+
+    <!-- Overall Savings Summary Cards -->
+    <section class="summary-section">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="summary-label">Total Saved</span>
+          <span class="summary-value highlight-green" id="sum-total-saved">₱0.00</span>
+          <span class="summary-subtext" id="sum-overall-progress">Progress: 0%</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Total Target</span>
+          <span class="summary-value highlight-blue" id="sum-total-target">₱0.00</span>
+          <span class="summary-subtext" id="sum-total-needed">Needed: ₱0.00</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Active Goals</span>
+          <span class="summary-value" id="sum-active-count">0</span>
+          <span class="summary-subtext" id="sum-paused-count">0 Paused</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Completed Goals</span>
+          <span class="summary-value highlight-green" id="sum-completed-count">0</span>
+          <span class="summary-subtext" id="sum-total-goals">0 Total Goals</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Overall Progress Visualizer -->
+    <section class="summary-section">
+      <div class="card">
+        <div class="progress-info">
+          <span><strong>Overall Savings Progress</strong></span>
+          <span id="overall-prog-label">0% (₱0.00 / ₱0.00)</span>
+        </div>
+        <div class="progress-track" style="margin-top: 0.5rem; height: 14px;">
+          <div class="progress-fill progress-fill-green" id="overall-prog-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Create / Edit Goal Modal (Hidden by default) -->
+    <div class="modal-overlay hidden" id="goal-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="modal-title">Create Savings Goal</h2>
+          <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+        </div>
+        <form id="goal-form" class="modal-form">
+          <input type="hidden" id="goal-id">
+          <div class="form-group">
+            <label for="goal-name">Goal Name *</label>
+            <input type="text" id="goal-name" placeholder="e.g. Emergency Fund, Laptop, Car" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="goal-category">Category</label>
+              <select id="goal-category">
+                <option value="Emergency Fund">Emergency Fund</option>
+                <option value="Education">Education</option>
+                <option value="Career">Career</option>
+                <option value="Technology">Technology</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Travel">Travel</option>
+                <option value="Housing">Housing</option>
+                <option value="Business">Business</option>
+                <option value="Investment">Investment</option>
+                <option value="Personal">Personal</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="goal-target-date">Target Date</label>
+              <input type="date" id="goal-target-date">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="goal-target-amount">Target Amount (₱) *</label>
+              <input type="number" id="goal-target-amount" placeholder="100000" step="0.01" min="1" required>
+            </div>
+            <div class="form-group">
+              <label for="goal-current-amount">Current Saved Amount (₱)</label>
+              <input type="number" id="goal-current-amount" placeholder="0" step="0.01" min="0">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="goal-description">Description (optional)</label>
+            <input type="text" id="goal-description" placeholder="Brief description of this goal">
+          </div>
+
+          <div class="form-group">
+            <label for="goal-note">Notes (optional)</label>
+            <input type="text" id="goal-note" placeholder="Extra notes or milestones">
+          </div>
+
+          <div class="form-actions" style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary" id="goal-submit-btn">Save Goal</button>
+            <button type="button" class="btn btn-secondary" id="goal-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Money / Deposit Modal (Hidden by default) -->
+    <div class="modal-overlay hidden" id="deposit-modal">
+      <div class="modal-card modal-card-sm">
+        <div class="modal-header">
+          <h2 id="deposit-modal-title">💰 Add Money to Goal</h2>
+          <button class="modal-close-btn" id="deposit-close-btn">&times;</button>
+        </div>
+        <form id="deposit-form" class="modal-form">
+          <input type="hidden" id="deposit-goal-id">
+          <div class="deposit-goal-summary">
+            <div class="summary-label" id="deposit-goal-name">Emergency Fund</div>
+            <div class="deposit-current" id="deposit-current-info">Current: ₱35,000 / ₱100,000</div>
+          </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label for="deposit-amount">Amount to Deposit (₱) *</label>
+            <input type="number" id="deposit-amount" placeholder="5000" step="0.01" min="1" required autofocus>
+          </div>
+
+          <div class="form-group">
+            <label for="deposit-desc">Note / Description</label>
+            <input type="text" id="deposit-desc" placeholder="e.g. Monthly salary savings">
+          </div>
+
+          <div class="form-actions" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary" id="deposit-submit-btn">DEPOSIT MONEY</button>
+            <button type="button" class="btn btn-secondary" id="deposit-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Goals Grid Container -->
+    <section class="goals-section">
+      <div class="section-header-flex">
+        <h2 class="section-title">🎯 Your Savings Goals</h2>
+        <div class="goals-filter-bar">
+          <select id="filter-goal-status" class="filter-select-sm">
+            <option value="All">All Statuses</option>
+            <option value="Active" selected>Active</option>
+            <option value="Completed">Completed</option>
+            <option value="Paused">Paused</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="goals-loading" class="text-secondary" style="text-align: center; padding: 3rem;">Loading savings goals...</div>
+
+      <!-- Empty State -->
+      <div id="goals-empty" class="card empty-state-card hidden">
+        <div class="empty-state-icon">🏦</div>
+        <h3>No savings goals yet</h3>
+        <p class="text-secondary">Start preparing for your future by creating your first savings goal.</p>
+        <button class="btn btn-primary" id="empty-create-btn" style="margin-top: 1rem;">+ CREATE SAVINGS GOAL</button>
+      </div>
+
+      <!-- Goals Cards Grid -->
+      <div class="goals-grid" id="goals-grid"></div>
+    </section>
+
+    <!-- Savings Analytics & Chart.js Visualizer -->
+    <section class="summary-section" style="margin-top: 2.5rem;">
+      <div class="card">
+        <h2>📈 Savings Goal Progress Comparison</h2>
+        <div style="position: relative; height: 280px; width: 100%; margin-top: 1rem;">
+          <canvas id="savingsChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Savings History / Transactions -->
+    <section class="summary-section" style="margin-top: 2rem;">
+      <div class="card">
+        <h2>📜 Recent Savings Deposits & History</h2>
+        <div class="table-container" style="margin-top: 1rem;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-tbody">
+              <tr><td colspan="4" class="text-secondary" style="text-align: center; padding: 1.5rem;">No recent transactions.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/savings.js"></script>
+</body>
+</html>

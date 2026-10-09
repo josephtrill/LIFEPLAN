@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LifePlan Dashboard — Your personal financial command center">
+  <title>LifePlan — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="12" fill="url(#g)" opacity=".15"/><rect x="8" y="8" width="32" height="32" rx="8" fill="url(#g)" opacity=".3"/><path d="M16 24L22 30L32 18" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g" x1="4" y1="4" x2="44" y2="44"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#00D2FF"/></linearGradient></defs></svg>
+        <span class="sidebar-title">LifePlan</span>
+      </div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/dashboard.html" class="nav-link active" id="nav-dashboard"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a href="/expenses.html" class="nav-link" id="nav-expenses"><span class="nav-icon">💰</span> Expenses</a></li>
+      <li><a href="/budget.html" class="nav-link" id="nav-budget"><span class="nav-icon">🎯</span> Budget</a></li>
+      <li><a href="/savings.html" class="nav-link" id="nav-savings"><span class="nav-icon">🏦</span> Savings</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-info" id="user-info">
+        <span class="user-avatar">👤</span>
+        <span class="user-name" id="user-name">Loading...</span>
+      </div>
+      <button class="btn-link sidebar-logout" id="logout-btn">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="page-subtitle" id="greeting">Welcome back!</p>
+      </div>
+      <div class="header-date" id="header-date"></div>
+    </header>
+
+    <!-- Warnings Container -->
+    <div id="dash-warnings" class="warnings-box hidden">
+      <div class="warnings-header">⚠️ Budget Alerts & Warnings</div>
+      <ul id="dash-warnings-list" class="warnings-list"></ul>
+    </div>
+
+    <!-- Financial Budget Summary (Phase 6 Integration) -->
+    <section class="summary-section">
+      <h2 class="section-title">🎯 Budget & Savings Overview</h2>
+      <div class="summary-grid">
+        
+        <!-- Today's Budget Card -->
+        <div class="summary-card">
+          <span class="summary-label">Today's Budget</span>
+          <span class="summary-value" id="dash-today-remaining">₱0.00</span>
+          <span class="summary-subtext" id="dash-today-details">Budget: ₱0.00 | Spent: ₱0.00</span>
+        </div>
+
+        <!-- Monthly Budget Card -->
+        <div class="summary-card">
+          <span class="summary-label">Monthly Budget</span>
+          <span class="summary-value" id="dash-monthly-remaining">₱0.00</span>
+          <span class="summary-subtext" id="dash-monthly-details">Budget: ₱0.00 | Spent: ₱0.00</span>
+        </div>
+
+        <!-- Monthly Income Card -->
+        <div class="summary-card">
+          <span class="summary-label">Monthly Income</span>
+          <span class="summary-value highlight-blue" id="dash-monthly-income">₱0.00</span>
+          <span class="summary-subtext">Configured Income</span>
+        </div>
+
+        <!-- Savings Card -->
+        <div class="summary-card">
+          <span class="summary-label">Available Savings</span>
+          <span class="summary-value highlight-green" id="dash-available-savings">₱0.00</span>
+          <span class="summary-subtext" id="dash-savings-details">Target: ₱0.00 (0%)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Savings Goals Section (Phase 7 Integration) -->
+    <section class="summary-section">
+      <div class="section-header-flex">
+        <h2 class="section-title">🏦 Savings Goals Overview</h2>
+        <a href="/savings.html" class="btn-link" style="font-size: 0.85rem;">View Goals &rarr;</a>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="summary-label">Total Saved</span>
+          <span class="summary-value highlight-green" id="dash-total-saved">₱0.00</span>
+          <span class="summary-subtext" id="dash-savings-overall-prog">Overall: 0%</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Savings Targets</span>
+          <span class="summary-value highlight-blue" id="dash-total-targets">₱0.00</span>
+          <span class="summary-subtext" id="dash-active-goals-count">0 Active Goals</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Goals Completed</span>
+          <span class="summary-value highlight-green" id="dash-completed-goals-count">0</span>
+          <span class="summary-subtext" id="dash-total-goals-count">0 Total Goals</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expense Totals Section -->
+    <section class="summary-section">
+      <h2 class="section-title">💳 Expense Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="summary-label">Today's Expenses</span>
+          <span class="summary-value" id="today-expense">₱0.00</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">This Week</span>
+          <span class="summary-value" id="weekly-expense">₱0.00</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">This Month</span>
+          <span class="summary-value" id="monthly-expense">₱0.00</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Budget Status</span>
+          <span class="summary-value" id="dash-budget-status" style="font-size: 1.2rem;">Healthy</span>
+          <span class="summary-subtext" id="dash-usage-subtext">Usage: 0%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category Breakdown -->
+    <section class="summary-section">
+      <h2 class="section-title">📂 Spending by Category</h2>
+      <div class="category-bars" id="category-bars">
+        <p class="text-secondary" style="text-align:left;">No expenses recorded yet. Add your first expense!</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

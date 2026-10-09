@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LifePlan — Login and Registration">
+  <title>LifePlan — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Decorative background elements -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <main class="auth-section">
+      <div class="auth-card">
+        
+        <!-- Logo / Brand -->
+        <div class="brand auth-brand">
+          <div class="brand-icon">
+            <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="4" width="40" height="40" rx="12" fill="url(#grad1)" opacity="0.15"/>
+              <rect x="8" y="8" width="32" height="32" rx="8" fill="url(#grad1)" opacity="0.3"/>
+              <path d="M16 24L22 30L32 18" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="grad1" x1="4" y1="4" x2="44" y2="44">
+                  <stop offset="0%" stop-color="#6C5CE7"/>
+                  <stop offset="100%" stop-color="#00D2FF"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h1 class="brand-name small">LifePlan</h1>
+        </div>
+
+        <h2 id="auth-title">Welcome Back</h2>
+        <p id="auth-subtitle" class="text-secondary">Log in to manage your life.</p>
+
+        <!-- Error Message Container -->
+        <div id="error-message" class="error-banner hidden"></div>
+        <!-- Success Message Container -->
+        <div id="success-message" class="success-banner hidden"></div>
+
+        <!-- Authentication Form -->
+        <form id="auth-form" class="auth-form">
+          
+          <!-- Registration only: Username -->
+          <div class="form-group hidden" id="username-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="johndoe">
+          </div>
+
+          <!-- Login/Registration: Email or Username (for login) -->
+          <div class="form-group" id="email-group">
+            <label for="email" id="email-label">Username or Email</label>
+            <input type="text" id="email" name="email" placeholder="Enter your email or username" required>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="••••••••" required minlength="6">
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn btn-primary btn-block">LOGIN</button>
+        </form>
+
+        <div class="auth-toggle">
+          <span id="toggle-text">Don't have an account?</span>
+          <button id="toggle-btn" class="btn-link">REGISTER</button>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

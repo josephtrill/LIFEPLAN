@@ -1,0 +1,173 @@
+{
+  "users": [
+    {
+      "id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "username": "john",
+      "email": "john@example.com",
+      "password_hash": "$2b$10$q58iql8yUyP0oMTA6Ye2E.1eh1LNECqp6AMGUSAZvUhRAQC4CWBaS",
+      "created_at": "2026-09-02T16:40:10.343Z"
+    },
+    {
+      "id": "94acc6ba-48b8-4bd5-a1fd-cf205deccc9c",
+      "username": "mark",
+      "email": "josephtrillana63@gmail.com",
+      "password_hash": "$2b$10$YhytlRv4BoIAuy41u8mouucJnt4aidZ4Y6NW/rV7vzUF.0rXW.yNW",
+      "created_at": "2026-09-02T16:42:12.891Z"
+    }
+  ],
+  "budgets": [
+    {
+      "id": "0d87788c-2550-42d7-a723-eb6c6044bb4a",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "monthly_income": 25000,
+      "daily_spending_limit": 500,
+      "monthly_spending_limit": 18000,
+      "savings_target": 7000,
+      "emergency_fund_target": 100000,
+      "future_purchase_target": 50000,
+      "updated_at": "2026-09-02T17:20:28.873Z"
+    },
+    {
+      "id": "494d7a1e-f537-47b5-9cb7-f7646a0d4e4a",
+      "user_id": "94acc6ba-48b8-4bd5-a1fd-cf205deccc9c",
+      "monthly_income": 20000,
+      "daily_spending_limit": 500,
+      "monthly_spending_limit": 15000,
+      "savings_target": 0,
+      "emergency_fund_target": 2000,
+      "future_purchase_target": 20000,
+      "updated_at": "2026-09-02T17:22:22.930Z"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "0c096166-87bf-4aff-aae8-923f2ce005a1",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "category": "Food",
+      "description": "Groceries and snacks",
+      "amount": 450.5,
+      "expense_date": "2026-09-02",
+      "payment_method": "Cash",
+      "note": "Weekly essentials",
+      "created_at": "2026-09-02T17:09:46.397Z"
+    },
+    {
+      "id": "2dc75e56-5eb0-46f9-8952-fcc148dfb654",
+      "user_id": "94acc6ba-48b8-4bd5-a1fd-cf205deccc9c",
+      "category": "Food",
+      "description": "lunch at mcdo",
+      "amount": 350,
+      "expense_date": "2026-09-02",
+      "payment_method": "Cash",
+      "note": "",
+      "created_at": "2026-09-02T17:12:16.522Z"
+    },
+    {
+      "id": "4a2f0a85-f31d-4e8f-89de-fcedef0ce127",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "category": "Shopping",
+      "description": "Books and supplies",
+      "amount": 200,
+      "expense_date": "2026-09-02",
+      "payment_method": "Cash",
+      "note": "",
+      "created_at": "2026-09-02T17:20:28.918Z"
+    }
+  ],
+  "savings_goals": [
+    {
+      "id": "303963b4-3fe3-4a8a-8297-594d27a528fe",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "name": "Emergency Fund",
+      "category": "Emergency Fund",
+      "description": "6 months of living expenses",
+      "target_amount": 100000,
+      "current_amount": 100000,
+      "target_date": "2026-12-31",
+      "status": "Completed",
+      "note": "",
+      "created_at": "2026-09-02T17:29:04.485Z",
+      "updated_at": "2026-09-02T17:29:04.569Z"
+    },
+    {
+      "id": "fe79b100-b08c-4b40-a769-31ad2e1bf5a1",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "name": "New Laptop",
+      "category": "Technology",
+      "description": "",
+      "target_amount": 60000,
+      "current_amount": 25000,
+      "target_date": "2026-10-15",
+      "status": "Active",
+      "note": "",
+      "created_at": "2026-09-02T17:29:04.586Z",
+      "updated_at": "2026-09-02T17:29:04.586Z"
+    },
+    {
+      "id": "11e9b855-1d3d-4069-8ed5-37e240d4cbca",
+      "user_id": "94acc6ba-48b8-4bd5-a1fd-cf205deccc9c",
+      "name": "car",
+      "category": "Transportation",
+      "description": "having car is grate",
+      "target_amount": 1000000,
+      "current_amount": 0,
+      "target_date": "2027-01-04",
+      "status": "Active",
+      "note": "need to grind more",
+      "created_at": "2026-09-02T17:31:38.467Z",
+      "updated_at": "2026-09-02T17:32:03.591Z"
+    }
+  ],
+  "daily_plans": [],
+  "tasks": [],
+  "time_entries": [],
+  "thoughts": [],
+  "goals": [],
+  "roadmaps": [],
+  "skills": [],
+  "habits": [],
+  "habit_records": [],
+  "daily_reviews": [],
+  "savings_transactions": [
+    {
+      "id": "5d135511-c1b3-499e-afaa-3ceb93bcd53e",
+      "savings_goal_id": "303963b4-3fe3-4a8a-8297-594d27a528fe",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "amount": 25000,
+      "transaction_type": "Deposit",
+      "description": "Initial deposit",
+      "transaction_date": "2026-09-02",
+      "created_at": "2026-09-02T17:29:04.485Z"
+    },
+    {
+      "id": "146a5559-c8b9-4e6d-a9b9-32186ce2ba99",
+      "savings_goal_id": "303963b4-3fe3-4a8a-8297-594d27a528fe",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "amount": 5000,
+      "transaction_type": "Deposit",
+      "description": "Monthly bonus",
+      "transaction_date": "2026-09-02",
+      "created_at": "2026-09-02T17:29:04.553Z"
+    },
+    {
+      "id": "3599647c-5635-47e9-b5b3-699444ca9a55",
+      "savings_goal_id": "303963b4-3fe3-4a8a-8297-594d27a528fe",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "amount": 70000,
+      "transaction_type": "Deposit",
+      "description": "Final lump sum",
+      "transaction_date": "2026-09-02",
+      "created_at": "2026-09-02T17:29:04.569Z"
+    },
+    {
+      "id": "59564211-7bb5-4902-9807-2039920adc14",
+      "savings_goal_id": "fe79b100-b08c-4b40-a769-31ad2e1bf5a1",
+      "user_id": "bd4a5073-daa4-4463-85e0-4e50bf5b67d3",
+      "amount": 25000,
+      "transaction_type": "Deposit",
+      "description": "Initial deposit",
+      "transaction_date": "2026-09-02",
+      "created_at": "2026-09-02T17:29:04.586Z"
+    }
+  ]
+}
