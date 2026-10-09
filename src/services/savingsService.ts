@@ -284,8 +284,9 @@ export async function getSavingsSummary(userId: string): Promise<SavingsSummary>
   if (!db.savings_goals) db.savings_goals = [];
   if (!db.savings_transactions) db.savings_transactions = [];
 
-  const userGoals = db.savings_goals.filter((g: SavingsGoal) => g.user_id === userId);
-  const enriched = userGoals.map(enrichGoal);
+  // FIX: explicit types so `g` below is no longer implicitly `any`
+  const userGoals: SavingsGoal[] = db.savings_goals.filter((g: SavingsGoal) => g.user_id === userId);
+  const enriched: EnrichedSavingsGoal[] = userGoals.map(enrichGoal);
 
   let totalSaved = 0;
   let totalTarget = 0;
@@ -303,7 +304,7 @@ export async function getSavingsSummary(userId: string): Promise<SavingsSummary>
 
   const overallProgress = totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0;
 
-  const goalsComparison = enriched.map(g => ({
+  const goalsComparison = enriched.map((g: EnrichedSavingsGoal) => ({
     id: g.id,
     name: g.name,
     category: g.category,
@@ -313,7 +314,7 @@ export async function getSavingsSummary(userId: string): Promise<SavingsSummary>
     status: g.status,
   }));
 
-  const userTransactions = db.savings_transactions
+  const userTransactions: SavingsTransaction[] = db.savings_transactions
     .filter((t: SavingsTransaction) => t.user_id === userId)
     .sort((a: SavingsTransaction, b: SavingsTransaction) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 10);
