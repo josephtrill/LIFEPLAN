@@ -33,7 +33,7 @@ export async function query<T extends QueryResultRow = any>(text: string, params
     return await pool.query<T>(text, params);
   } catch (error: any) {
     console.error('❌ Database query failed:', error.message);
-    throw new Error('Database query failed');
+    throw new Error(`Database query failed: ${error.message}`);
   }
 }
 
