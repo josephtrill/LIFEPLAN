@@ -48,7 +48,8 @@ export async function getExpenseSummary(req: Request, res: Response): Promise<vo
 export async function getExpenseById(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).user.id;
-    const expense = await expenseService.getExpenseById(userId, req.params.id);
+    const id = String(req.params.id); // FIX: params can be string | string[]
+    const expense = await expenseService.getExpenseById(userId, id);
 
     if (!expense) {
       res.status(404).json({ success: false, message: 'Expense not found' });
@@ -103,6 +104,7 @@ export async function addExpense(req: Request, res: Response): Promise<void> {
 export async function updateExpense(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).user.id;
+    const id = String(req.params.id); // FIX: params can be string | string[]
     const { category, description, amount, expense_date, payment_method, note } = req.body;
 
     if (amount !== undefined && (isNaN(Number(amount)) || Number(amount) <= 0)) {
@@ -110,7 +112,7 @@ export async function updateExpense(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const updated = await expenseService.updateExpense(userId, req.params.id, {
+    const updated = await expenseService.updateExpense(userId, id, {
       category,
       description,
       amount: amount !== undefined ? Number(amount) : undefined,
@@ -137,7 +139,8 @@ export async function updateExpense(req: Request, res: Response): Promise<void> 
 export async function deleteExpense(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).user.id;
-    const deleted = await expenseService.deleteExpense(userId, req.params.id);
+    const id = String(req.params.id); // FIX: params can be string | string[]
+    const deleted = await expenseService.deleteExpense(userId, id);
 
     if (!deleted) {
       res.status(404).json({ success: false, message: 'Expense not found' });
