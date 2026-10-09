@@ -1,190 +1,202 @@
 // src/services/expenseService.ts
-// Handles the business logic for Expense Management (CRUD + Summaries)
+// Business logic for Expense Management, stored in Supabase (PostgreSQL).
 
-import crypto from 'crypto';
-import { readData, writeData } from '../db/database';
-import { Expense } from '../types';
+import { query } from '../db/database';
+
+export interface Expense {
+  id: string;
+  user_id: string;
+  category: string;
+  description: string;
+  amount: number;
+  expense_date: string; // YYYY-MM-DD
+  payment_method: string | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExpenseFilters {
+  category?: string;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+}
+
+export interface ExpenseInput {
+  category?: string;
+  description?: string;
+  amount?: number;
+  expense_date?: string;
+  payment_method?: string;
+  note?: string;
+}
+
+// Columns returned to the controller. amount is cast to a JS number and the
+// date to a plain YYYY-MM-DD string (pg would otherwise return a string/Date object).
+const EXPENSE_COLUMNS = `
+  id,
+  user_id,
+  category,
+  description,
+  amount::float8 AS amount,
+  to_char(expense_date, 'YYYY-MM-DD') AS expense_date,
+  payment_method,
+  note,
+  created_at,
+  updated_at
+`;
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Get all expenses for a user, with optional filtering
+ * Get all expenses for a user, with optional filters (category, date range, search).
  */
-export async function getAllExpenses(
-  userId: string,
-  filters?: { category?: string; startDate?: string; endDate?: string; search?: string }
-): Promise<Expense[]> {
-  const db = await readData();
-  let expenses: Expense[] = (db.expenses || []).filter((e: Expense) => e.user_id === userId);
+export async function getAllExpenses(userId: string, filters: ExpenseFilters = {}): Promise<Expense[]> {
+  const conditions: string[] = ['user_id = $1'];
+  const params: any[] = [userId];
 
-  // Filter by category
-  if (filters?.category && filters.category !== 'All') {
-    expenses = expenses.filter((e: Expense) => e.category === filters.category);
+  if (filters.category && filters.category !== 'All') {
+    params.push(filters.category);
+    conditions.push(`category = $${params.length}`);
   }
-
-  // Filter by date range
-  if (filters?.startDate) {
-    expenses = expenses.filter((e: Expense) => e.expense_date >= filters.startDate!);
+  if (filters.startDate) {
+    params.push(filters.startDate);
+    conditions.push(`expense_date >= $${params.length}::date`);
   }
-  if (filters?.endDate) {
-    expenses = expenses.filter((e: Expense) => e.expense_date <= filters.endDate!);
+  if (filters.endDate) {
+    params.push(filters.endDate);
+    conditions.push(`expense_date <= $${params.length}::date`);
   }
-
-  // Search by description or note
-  if (filters?.search) {
-    const searchLower = filters.search.toLowerCase();
-    expenses = expenses.filter(
-      (e: Expense) =>
-        e.description.toLowerCase().includes(searchLower) ||
-        (e.note && e.note.toLowerCase().includes(searchLower))
+  if (filters.search) {
+    params.push(`%${filters.search}%`);
+    conditions.push(
+      `(description ILIKE $${params.length} OR COALESCE(note, '') ILIKE $${params.length})`
     );
   }
 
-  // Sort by expense_date descending (newest first)
-  expenses.sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
-
-  return expenses;
-}
-
-/**
- * Get a single expense by ID (only if it belongs to the user)
- */
-export async function getExpenseById(userId: string, expenseId: string): Promise<Expense | null> {
-  const db = await readData();
-  const expense = (db.expenses || []).find(
-    (e: Expense) => e.id === expenseId && e.user_id === userId
+  const result = await query<Expense>(
+    `SELECT ${EXPENSE_COLUMNS}
+     FROM expenses
+     WHERE ${conditions.join(' AND ')}
+     ORDER BY expense_date DESC, created_at DESC`,
+    params
   );
-  return expense || null;
+  return result.rows;
 }
 
 /**
- * Add a new expense
+ * Get one expense by ID (only if it belongs to the user).
  */
-export async function addExpense(userId: string, data: Partial<Expense>): Promise<Expense> {
-  const db = await readData();
-  if (!db.expenses) {
-    db.expenses = [];
-  }
+export async function getExpenseById(userId: string, id: string): Promise<Expense | null> {
+  if (!UUID_REGEX.test(id)) return null;
 
-  const newExpense: Expense = {
-    id: crypto.randomUUID(),
-    user_id: userId,
-    category: data.category || 'Other',
-    description: data.description || '',
-    amount: Number(data.amount) || 0,
-    expense_date: data.expense_date || new Date().toISOString().split('T')[0],
-    payment_method: data.payment_method || 'Cash',
-    note: data.note || '',
-    created_at: new Date().toISOString(),
-  };
-
-  db.expenses.push(newExpense);
-  await writeData(db);
-
-  return newExpense;
+  const result = await query<Expense>(
+    `SELECT ${EXPENSE_COLUMNS} FROM expenses WHERE id = $1 AND user_id = $2`,
+    [id, userId]
+  );
+  return result.rows[0] || null;
 }
 
 /**
- * Update an existing expense
+ * Add a new expense.
+ */
+export async function addExpense(userId: string, data: ExpenseInput): Promise<Expense> {
+  const result = await query<Expense>(
+    `INSERT INTO expenses (user_id, category, description, amount, expense_date, payment_method, note)
+     VALUES ($1, COALESCE($2, 'Other'), $3, $4, COALESCE($5::date, CURRENT_DATE), $6, $7)
+     RETURNING ${EXPENSE_COLUMNS}`,
+    [
+      userId,
+      data.category || null,
+      data.description,
+      data.amount,
+      data.expense_date || null,
+      data.payment_method || null,
+      data.note || null,
+    ]
+  );
+  return result.rows[0];
+}
+
+/**
+ * Update an expense. Only fields that are provided are changed.
  */
 export async function updateExpense(
   userId: string,
-  expenseId: string,
-  updates: Partial<Expense>
+  id: string,
+  data: ExpenseInput
 ): Promise<Expense | null> {
-  const db = await readData();
-  if (!db.expenses) {
-    db.expenses = [];
-  }
+  if (!UUID_REGEX.test(id)) return null;
 
-  const index = db.expenses.findIndex(
-    (e: Expense) => e.id === expenseId && e.user_id === userId
+  const result = await query<Expense>(
+    `UPDATE expenses SET
+       category       = COALESCE($3, category),
+       description    = COALESCE($4, description),
+       amount         = COALESCE($5, amount),
+       expense_date   = COALESCE($6::date, expense_date),
+       payment_method = COALESCE($7, payment_method),
+       note           = COALESCE($8, note),
+       updated_at     = now()
+     WHERE id = $1 AND user_id = $2
+     RETURNING ${EXPENSE_COLUMNS}`,
+    [
+      id,
+      userId,
+      data.category ?? null,
+      data.description ?? null,
+      data.amount ?? null,
+      data.expense_date ?? null,
+      data.payment_method ?? null,
+      data.note ?? null,
+    ]
   );
-
-  if (index === -1) return null;
-
-  // Merge updates (keep immutable id, user_id, created_at)
-  db.expenses[index] = {
-    ...db.expenses[index],
-    category: updates.category ?? db.expenses[index].category,
-    description: updates.description ?? db.expenses[index].description,
-    amount: updates.amount !== undefined ? Number(updates.amount) : db.expenses[index].amount,
-    expense_date: updates.expense_date ?? db.expenses[index].expense_date,
-    payment_method: updates.payment_method ?? db.expenses[index].payment_method,
-    note: updates.note ?? db.expenses[index].note,
-  };
-
-  await writeData(db);
-  return db.expenses[index];
+  return result.rows[0] || null;
 }
 
 /**
- * Delete an expense
+ * Delete an expense. Returns true if a row was deleted.
  */
-export async function deleteExpense(userId: string, expenseId: string): Promise<boolean> {
-  const db = await readData();
-  if (!db.expenses) {
-    db.expenses = [];
-    return false;
-  }
+export async function deleteExpense(userId: string, id: string): Promise<boolean> {
+  if (!UUID_REGEX.test(id)) return false;
 
-  const originalLength = db.expenses.length;
-  db.expenses = db.expenses.filter(
-    (e: Expense) => !(e.id === expenseId && e.user_id === userId)
-  );
-
-  if (db.expenses.length === originalLength) return false;
-
-  await writeData(db);
-  return true;
+  const result = await query('DELETE FROM expenses WHERE id = $1 AND user_id = $2', [id, userId]);
+  return (result.rowCount ?? 0) > 0;
 }
 
 /**
- * Get expense summaries for the dashboard (today, this week, this month, by category)
+ * Summary for the dashboard: today, last 7 days, this month, and this month by category.
  */
 export async function getExpenseSummary(userId: string) {
-  const db = await readData();
-  const userExpenses: Expense[] = (db.expenses || []).filter((e: Expense) => e.user_id === userId);
+  const totals = await query(
+    `SELECT
+       COALESCE(SUM(amount) FILTER (WHERE expense_date = CURRENT_DATE), 0)::float8 AS today_total,
+       COALESCE(SUM(amount) FILTER (WHERE expense_date >= CURRENT_DATE - 6), 0)::float8 AS weekly_total,
+       COALESCE(SUM(amount) FILTER (
+         WHERE date_trunc('month', expense_date) = date_trunc('month', CURRENT_DATE)
+       ), 0)::float8 AS monthly_total,
+       COUNT(*)::int AS total_count
+     FROM expenses
+     WHERE user_id = $1`,
+    [userId]
+  );
 
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0]; // "YYYY-MM-DD"
+  const byCategory = await query(
+    `SELECT category, SUM(amount)::float8 AS total, COUNT(*)::int AS count
+     FROM expenses
+     WHERE user_id = $1
+       AND date_trunc('month', expense_date) = date_trunc('month', CURRENT_DATE)
+     GROUP BY category
+     ORDER BY total DESC`,
+    [userId]
+  );
 
-  // Calculate "start of week" (Monday)
-  const dayOfWeek = now.getDay(); // 0 = Sunday
-  const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - mondayOffset);
-  const weekStartStr = weekStart.toISOString().split('T')[0];
-
-  // Start of month
-  const monthStartStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-
-  // Calculate totals
-  let todayTotal = 0;
-  let weeklyTotal = 0;
-  let monthlyTotal = 0;
-  const categoryTotals: Record<string, number> = {};
-
-  for (const exp of userExpenses) {
-    const amount = Number(exp.amount) || 0;
-
-    if (exp.expense_date === todayStr) {
-      todayTotal += amount;
-    }
-    if (exp.expense_date >= weekStartStr) {
-      weeklyTotal += amount;
-    }
-    if (exp.expense_date >= monthStartStr) {
-      monthlyTotal += amount;
-    }
-
-    // Accumulate by category
-    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + amount;
-  }
-
+  const row = totals.rows[0];
   return {
-    today: todayTotal,
-    weekly: weeklyTotal,
-    monthly: monthlyTotal,
-    byCategory: categoryTotals,
-    totalExpenses: userExpenses.length,
+    today_total: row.today_total,
+    weekly_total: row.weekly_total,
+    monthly_total: row.monthly_total,
+    total_count: row.total_count,
+    by_category: byCategory.rows,
   };
 }
