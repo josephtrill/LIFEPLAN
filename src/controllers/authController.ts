@@ -13,9 +13,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
  */
 function sendTokenResponse(user: any, statusCode: number, res: Response, message: string) {
   // Generate the token containing the user's ID
-  const token = jwt.sign({ id: user.id }, JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
-  });
+const token = jwt.sign(
+  { id: user.id },
+  process.env.JWT_SECRET as string,
+  { expiresIn: (process.env.JWT_EXPIRES_IN || "7d") as jwt.SignOptions["expiresIn"] }
+);
 
   // Set the token as a cookie
   // httpOnly: true ensures the cookie can't be accessed by client-side JS (prevents XSS)
