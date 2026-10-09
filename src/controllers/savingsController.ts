@@ -49,7 +49,8 @@ export async function getSavingsSummary(req: Request, res: Response): Promise<vo
 export async function getSavingsGoalById(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).user.id;
-    const result = await savingsService.getSavingsGoalById(userId, req.params.id);
+    const id = String(req.params.id); // FIX: params can be string | string[]
+    const result = await savingsService.getSavingsGoalById(userId, id);
 
     if (!result) {
       res.status(404).json({ success: false, message: 'Savings goal not found' });
@@ -117,6 +118,7 @@ export async function createSavingsGoal(req: Request, res: Response): Promise<vo
 export async function updateSavingsGoal(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).user.id;
+    const id = String(req.params.id); // FIX: params can be string | string[]
     const { name, category, description, target_amount, current_amount, target_date, status, note } = req.body;
 
     if (name !== undefined && name.trim() === '') {
@@ -134,7 +136,7 @@ export async function updateSavingsGoal(req: Request, res: Response): Promise<vo
       return;
     }
 
-    const updated = await savingsService.updateSavingsGoal(userId, req.params.id, {
+    const updated = await savingsService.updateSavingsGoal(userId, id, {
       name: name ? name.trim() : undefined,
       category,
       description,
@@ -167,7 +169,8 @@ export async function updateSavingsGoal(req: Request, res: Response): Promise<vo
 export async function deleteSavingsGoal(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).user.id;
-    const deleted = await savingsService.deleteSavingsGoal(userId, req.params.id);
+    const id = String(req.params.id); // FIX: params can be string | string[]
+    const deleted = await savingsService.deleteSavingsGoal(userId, id);
 
     if (!deleted) {
       res.status(404).json({ success: false, message: 'Savings goal not found' });
@@ -190,6 +193,7 @@ export async function deleteSavingsGoal(req: Request, res: Response): Promise<vo
 export async function depositToGoal(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).user.id;
+    const id = String(req.params.id); // FIX: params can be string | string[]
     const { amount, description } = req.body;
 
     if (amount === undefined || isNaN(Number(amount)) || Number(amount) <= 0) {
@@ -197,7 +201,7 @@ export async function depositToGoal(req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const result = await savingsService.depositToGoal(userId, req.params.id, Number(amount), description);
+    const result = await savingsService.depositToGoal(userId, id, Number(amount), description);
 
     if (!result) {
       res.status(404).json({ success: false, message: 'Savings goal not found.' });
